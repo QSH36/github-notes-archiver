@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#0d6b4d">
+  <title>GitHub 笔记归档</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#mainContent">跳到主要内容</a>
+
+  <main id="loginView" class="auth-layout">
+    <section class="auth-card" aria-labelledby="loginTitle">
+      <div class="brand brand--large" aria-hidden="true"><span>枝</span></div>
+      <p class="eyebrow">PRIVATE NOTES ARCHIVER</p>
+      <h1 id="loginTitle">登录管理面板</h1>
+      <p class="muted">使用安装时生成的一次性管理令牌。令牌只用于建立安全会话。</p>
+      <form id="loginForm" class="stack">
+        <label for="adminToken">管理令牌</label>
+        <div class="input-action">
+          <input id="adminToken" name="token" type="password" autocomplete="current-password" required autofocus>
+          <button class="quiet-button" type="button" data-toggle-password="adminToken">显示</button>
+        </div>
+        <button class="primary-button full" type="submit">安全登录</button>
+        <p id="loginError" class="form-error" role="alert"></p>
+      </form>
+      <p class="security-note">服务默认仅监听服务器回环地址，请通过 SSH 隧道访问。</p>
+    </section>
+  </main>
+
+  <div id="appView" class="app-shell" hidden>
+    <header class="topbar">
+      <a class="brand-link" href="#dashboard" data-route-link="dashboard" aria-label="GitHub 笔记归档首页">
+        <span class="brand" aria-hidden="true"><span>枝</span></span>
+        <span><strong>笔记归档</strong><small>GitHub Notes Archiver</small></span>
+      </a>
+      <button id="navToggle" class="nav-toggle" type="button" aria-expanded="false" aria-controls="primaryNav">菜单</button>
+      <nav id="primaryNav" class="primary-nav" aria-label="主导航">
+        <a href="#dashboard" data-route-link="dashboard">概览</a>
+        <a href="#connect" data-route-link="connect">连接 GitHub</a>
+        <a href="#repositories" data-route-link="repositories">仓库</a>
+        <a href="#notes" data-route-link="notes">写笔记</a>
+        <a href="#imports" data-route-link="imports">历史导入</a>
+        <a href="#operations" data-route-link="operations">运行记录</a>
+      </nav>
+      <button id="logoutButton" class="secondary-button compact" type="button">退出</button>
+    </header>
+
+    <main id="mainContent" class="content" tabindex="-1">
+      <section class="page" data-route="dashboard" aria-labelledby="dashboardTitle">
+        <div class="page-heading">
+          <div><p class="eyebrow">OVERVIEW</p><h1 id="dashboardTitle">运行概览</h1><p class="muted">真实笔记版本按仓库独立归档，空闲时不会产生提交。</p></div>
+          <button class="primary-button" id="syncAllButton" type="button">同步全部仓库</button>
+        </div>
+        <div class="metric-grid" aria-label="运行指标">
+          <article class="metric-card"><span>已启用仓库</span><strong id="metricRepos">—</strong><small>独立工作树与凭据</small></article>
+          <article class="metric-card"><span>待处理版本</span><strong id="metricQueue">—</strong><small>按仓库串行同步</small></article>
+          <article class="metric-card"><span>异常仓库</span><strong id="metricErrors">—</strong><small>故障不会影响其他仓库</small></article>
+          <article class="metric-card accent"><span>服务状态</span><strong id="metricHealth">检测中</strong><small id="healthDetail">仅回环地址访问</small></article>
+        </div>
+        <div class="split-grid">
+          <article class="panel">
+            <div class="panel-heading"><div><h2>仓库健康度</h2><p>最近一次同步与当前状态</p></div><a href="#repositories" data-route-link="repositories">管理仓库</a></div>
+            <div id="dashboardRepos" class="state-box">正在加载…</div>
+          </article>
+          <article class="panel">
+            <div class="panel-heading"><div><h2>最近事件</h2><p>不展示凭据或完整正文</p></div><a href="#operations" data-route-link="operations">全部记录</a></div>
+            <div id="dashboardEvents" class="timeline state-box">正在加载…</div>
+          </article>
+        </div>
+      </section>
+
+      <section class="page" data-route="connect" aria-labelledby="connectTitle" hidden>
+        <div class="page-heading"><div><p class="eyebrow">GITHUB ACCESS</p><h1 id="connectTitle">连接 GitHub</h1><p class="muted">令牌仅在本次发现会话的服务器内存中保存，10 分钟后自动失效。</p></div></div>
+        <div class="split-grid align-start">
+          <article class="panel">
+            <div class="panel-heading"><div><h2>使用 fine-grained PAT</h2><p>获取当前令牌可访问的仓库</p></div><span class="step-chip">推荐</span></div>
+            <form id="discoveryForm" class="form-grid">
+              <div><label for="githubUsername">GitHub 用户名</label><input id="githubUsername" name="username" autocomplete="username" required></div>
+              <div><label for="resourceOwner">Resource owner</label><input id="resourceOwner" name="resource_owner" required aria-describedby="ownerHint"><small id="ownerHint" class="field-hint">个人账号或组织名称</small></div>
+              <div><label for="discoveryAuthorName">Git 作者姓名</label><input id="discoveryAuthorName" name="author_name" required></div>
+              <div><label for="discoveryAuthorEmail">已验证 Git 邮箱</label><input id="discoveryAuthorEmail" name="author_email" type="email" required><small class="field-hint">建议使用 GitHub noreply 邮箱</small></div>
+              <div class="full-span"><label for="githubPat">Fine-grained PAT</label><div class="input-action"><input id="githubPat" name="token" type="password" autocomplete="off" required><button class="quiet-button" type="button" data-toggle-password="githubPat">显示</button></div></div>
+              <div class="full-span permission-box"><strong>所需权限</strong><span>Metadata: read</span><span>Administration: write</span><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer">创建 fine-grained token <span class="sr-only">（在新窗口打开）</span></a></div>
+              <div class="full-span form-actions"><button class="primary-button" type="submit">获取仓库列表</button><span id="discoveryStatus" class="inline-status" aria-live="polite"></span></div>
+            </form>
+          </article>
+          <aside class="panel info-panel" aria-labelledby="patSafetyTitle">
+            <div class="icon-bubble" aria-hidden="true">盾</div><h2 id="patSafetyTitle">凭据安全说明</h2>
+            <ul class="check-list"><li>PAT 不会写入配置、磁盘或日志</li><li>发现会话绑定当前管理员会话</li><li>批量启用结束后立即从内存删除</li><li>GitHub 不支持账号密码认证</li></ul>
+            <p class="callout warning"><strong>重要：</strong>GitHub 删除创建 Deploy Key 的 PAT 时，关联密钥可能同时失效。请保留该 PAT，或准备在此重新安装密钥。</p>
+          </aside>
+        </div>
+        <details class="panel advanced-panel">
+          <summary>高级：使用现有 SSH 私钥连接单个仓库</summary>
+          <p class="muted">私钥不能枚举账户仓库，只能验证你明确填写的 SSH URL。仅支持无口令 OpenSSH 私钥。</p>
+          <form id="manualRepositoryForm" class="form-grid" enctype="multipart/form-data">
+            <div class="full-span"><label for="repositoryUrl">仓库 SSH URL</label><input id="repositoryUrl" name="ssh_url" type="text" placeholder="git@github.com:owner/repository.git" required></div>
+            <div><label for="authorName">Git 作者姓名</label><input id="authorName" name="author_name" required></div>
+            <div><label for="authorEmail">Git 作者邮箱</label><input id="authorEmail" name="author_email" type="email" required></div>
+            <div class="full-span"><label for="manualDefaultBranch">默认分支</label><input id="manualDefaultBranch" name="default_branch" value="main" required></div>
+            <div class="full-span"><label for="privateKey">OpenSSH 私钥文件</label><input id="privateKey" name="private_key" type="file" accept=".pem,.key,text/plain" required><small class="field-hint">上传账户级私钥可能授予服务器访问多个仓库的权限。</small></div>
+            <div class="full-span form-actions"><button class="secondary-button" type="submit">验证并添加仓库</button><span id="manualStatus" class="inline-status" aria-live="polite"></span></div>
+          </form>
+        </details>
+      </section>
+
+      <section class="page" data-route="repositories" aria-labelledby="repositoriesTitle" hidden>
+        <div class="page-heading"><div><p class="eyebrow">REPOSITORIES</p><h1 id="repositoriesTitle">选择与管理仓库</h1><p class="muted">公开、fork、归档或权限不足的仓库不可启用。</p></div><a class="secondary-button" href="#connect" data-route-link="connect">添加账户</a></div>
+        <article class="panel repository-panel">
+          <div class="toolbar">
+            <form id="repositorySearchForm" role="search" class="search-box"><label class="sr-only" for="repositorySearch">搜索仓库</label><input id="repositorySearch" type="search" placeholder="搜索 owner 或仓库名"><button type="submit">搜索</button></form>
+            <label class="filter-control" for="repositoryFilter">筛选 <select id="repositoryFilter"><option value="all">全部</option><option value="eligible">可启用</option><option value="enabled">已启用</option><option value="unavailable">不可用</option></select></label>
+            <button id="refreshRepositoriesButton" class="quiet-button" type="button">刷新</button>
+          </div>
+          <div id="selectionBar" class="selection-bar" hidden><span>已选择 <strong id="selectedCount">0</strong> 个仓库</span><button id="activateSelectedButton" class="primary-button compact" type="button">启用所选</button></div>
+          <div class="table-scroll">
+            <table>
+              <caption class="sr-only">GitHub 仓库列表</caption>
+              <thead><tr><th class="check-cell"><input id="selectAllRepositories" type="checkbox" aria-label="选择当前所有可启用仓库"></th><th>仓库</th><th>类型</th><th>默认分支</th><th>权限</th><th>状态</th><th><span class="sr-only">操作</span></th></tr></thead>
+              <tbody id="repositoryTableBody"><tr><td colspan="7" class="empty-cell">请先连接 GitHub 获取仓库，或刷新已启用仓库。</td></tr></tbody>
+            </table>
+          </div>
+          <p id="repositoryTableStatus" class="table-status" aria-live="polite"></p>
+        </article>
+      </section>
+
+      <section class="page" data-route="notes" aria-labelledby="notesTitle" hidden>
+        <div class="page-heading"><div><p class="eyebrow">NEW VERSION</p><h1 id="notesTitle">记录真实笔记版本</h1><p class="muted">每个版本只能归属一个仓库；没有内容变化时不会生成提交。</p></div></div>
+        <div class="split-grid align-start note-layout">
+          <article class="panel">
+            <form id="noteForm" class="form-grid">
+              <div class="full-span"><label for="noteRepository">目标仓库</label><select id="noteRepository" name="repository_id" required><option value="">请选择一个已启用仓库</option></select></div>
+              <div><label for="logicalPath">笔记路径</label><input id="logicalPath" name="logical_path" placeholder="learning/go-http.md" required pattern="[^\\]+"><small class="field-hint">相对于仓库归档目录，不能使用绝对路径或 ..</small></div>
+              <div><label for="noteTitle">版本标题</label><input id="noteTitle" name="title" maxlength="120" required></div>
+              <div class="full-span"><label for="noteContent">Markdown / 纯文本正文</label><textarea id="noteContent" name="content" rows="16" required></textarea><div class="textarea-meta"><span>只提交你真实编写或拥有的内容</span><span id="noteCharacterCount">0 字符</span></div></div>
+              <div class="full-span form-actions"><button class="primary-button" type="submit">保存版本并加入队列</button><span id="noteStatus" class="inline-status" aria-live="polite"></span></div>
+            </form>
+          </article>
+          <aside class="panel guide-panel"><h2>归档规则</h2><ol class="number-list"><li><span>1</span><div><strong>选择唯一仓库</strong><p>不会自动复制到其他仓库。</p></div></li><li><span>2</span><div><strong>保存不可变版本</strong><p>系统记录正文哈希与服务器时间。</p></div></li><li><span>3</span><div><strong>安全串行同步</strong><p>先 fetch 并检查快进条件，禁止强推。</p></div></li></ol></aside>
+        </div>
+      </section>
+
+      <section class="page" data-route="imports" aria-labelledby="importsTitle" hidden>
+        <div class="page-heading"><div><p class="eyebrow">HISTORY IMPORT</p><h1 id="importsTitle">导入真实历史版本</h1><p class="muted">只接受带可信来源时间的 CSV 或 ZIP 包；先预览，确认后才会进入队列。</p></div></div>
+        <div class="split-grid align-start">
+          <article class="panel">
+            <form id="importPreviewForm" class="form-grid" enctype="multipart/form-data">
+              <div class="full-span"><label for="importRepository">唯一目标仓库</label><select id="importRepository" name="repository_id" required><option value="">请选择仓库</option></select></div>
+              <div class="full-span"><label for="importFile">CSV 或 ZIP 文件</label><div class="file-drop"><input id="importFile" name="file" type="file" accept=".csv,.zip,text/csv,application/zip" required><span>最大 50 MiB；ZIP 解压后最大 100 MiB</span></div></div>
+              <div class="full-span form-actions"><button class="secondary-button" type="submit">生成安全预览</button><span id="importStatus" class="inline-status" aria-live="polite"></span></div>
+            </form>
+          </article>
+          <article class="panel" aria-labelledby="previewTitle"><div class="panel-heading"><div><h2 id="previewTitle">导入预览</h2><p>远端 HEAD 变化后预览自动失效</p></div></div><div id="importPreview" class="state-box">尚未选择导入文件。</div></article>
+        </div>
+      </section>
+
+      <section class="page" data-route="operations" aria-labelledby="operationsTitle" hidden>
+        <div class="page-heading"><div><p class="eyebrow">OPERATIONS</p><h1 id="operationsTitle">队列与运行记录</h1><p class="muted">敏感凭据和完整笔记正文不会出现在这里。</p></div><button id="refreshOperationsButton" class="secondary-button" type="button">刷新记录</button></div>
+        <div class="tab-list" role="tablist" aria-label="运行记录分类">
+          <button id="queueTab" role="tab" aria-selected="true" aria-controls="queuePanel" tabindex="0">同步队列</button>
+          <button id="eventsTab" role="tab" aria-selected="false" aria-controls="eventsPanel" tabindex="-1">事件日志</button>
+        </div>
+        <section id="queuePanel" class="panel tab-panel" role="tabpanel" aria-labelledby="queueTab"><div id="queueList" class="state-box">正在加载…</div></section>
+        <section id="eventsPanel" class="panel tab-panel" role="tabpanel" aria-labelledby="eventsTab" hidden><div class="log-toolbar"><label for="eventLevelFilter">级别 <select id="eventLevelFilter"><option value="">全部</option><option value="info">信息</option><option value="warning">警告</option><option value="error">错误</option></select></label><label for="eventRepositoryFilter">仓库 <select id="eventRepositoryFilter"><option value="">全部仓库</option></select></label></div><div id="eventList" class="log-list state-box">正在加载…</div></section>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="activationDialog" aria-labelledby="activationTitle" aria-describedby="activationDescription">
+    <form method="dialog" class="dialog-card">
+      <div class="dialog-icon" aria-hidden="true">钥</div>
+      <h2 id="activationTitle">确认创建仓库 Deploy Key</h2>
+      <p id="activationDescription">系统将为每个所选仓库创建独立、可写的 Ed25519 Deploy Key，并在验证成功后启用仓库。</p>
+      <div id="activationRepositoryList" class="dialog-list"></div>
+      <label class="confirm-check"><input id="patLifecycleAcknowledgement" type="checkbox"> <span>我理解：若以后删除用于创建密钥的 PAT，相关 Deploy Key 可能失效，需要重新安装。</span></label>
+      <div class="dialog-actions"><button value="cancel" class="quiet-button">取消</button><button id="confirmActivationButton" value="default" class="primary-button" disabled>确认并启用</button></div>
+    </form>
+  </dialog>
+
+  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+  <script src="/assets/app.js" defer></script>
+</body>
+</html>

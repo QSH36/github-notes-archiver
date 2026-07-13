@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+
+exec /usr/bin/ssh \
+  -i "$GNA_SSH_KEY_PATH" \
+  -o "UserKnownHostsFile=$GNA_SSH_KNOWN_HOSTS" \
+  -o IdentitiesOnly=yes \
+  -o StrictHostKeyChecking=yes \
+  -o BatchMode=yes \
+  "$@"

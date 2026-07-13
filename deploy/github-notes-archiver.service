@@ -1,0 +1,20 @@
+[Unit]
+Description=GitHub Notes Archiver
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=github-notes-archiver
+Group=github-notes-archiver
+WorkingDirectory=/var/lib/github-notes-archiver
+EnvironmentFile=-/etc/github-notes-archiver/environment
+ExecStart=/opt/github-notes-archiver/current/github-notes-archiver serve
+Restart=on-failure
+RestartSec=10s
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
